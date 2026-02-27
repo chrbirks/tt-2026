@@ -1,34 +1,44 @@
 // ADPLL Testbench
 // Uses behavioral DCO model (compile with -DSIMULATION).
 // Generates ref_clk, monitors lock acquisition, measures output frequency.
+// TODO: Migrate to Modelsim and Surfer instead
 
 `timescale 1ns / 1ps
 
 module tb_adpll;
 
     // Parameters
+    // TODO: params not used
     localparam REF_PERIOD = 100.0;  // 10 MHz reference clock (100 ns period)
     localparam DIV_RATIO  = 8;
-    localparam SIM_TIME   = 200_000; // 200 us simulation
+    localparam SIM_TIME   = 2_000_000; // 200 us simulation
 
     // Signals
     reg        clk_ref;
     reg        rst_n;
     reg        enable;
+    wire [7:0] uo_out;
+    wire [7:0] uio_out;
     wire       clk_out;
     wire       locked;
     wire [6:0] freq_ctrl;
+
+    assign clk_out   = uo_out[0];
+    assign locked    = uo_out[1];
+    assign freq_ctrl = uio_out[6:0];
 
     // DUT
     tt_um_chrbirks_top #(
         .DIV_RATIO(DIV_RATIO)
     ) dut (
-        .clk_ref   (clk_ref),
-        .rst_n     (rst_n),
-        .enable    (enable),
-        .clk_out   (clk_out),
-        .locked    (locked),
-        .freq_ctrl (freq_ctrl)
+        .ui_in   (8'b0),
+        .uo_out  (uo_out),
+        .uio_in  (8'b0),
+        .uio_out (uio_out),
+        .uio_oe  (),
+        .ena     (enable),
+        .clk     (clk_ref),
+        .rst_n   (rst_n)
     );
 
     // Reference clock generation
@@ -107,7 +117,7 @@ module tb_adpll;
         measure_frequency(10_000.0);
 
         // Let it run a bit more and measure again
-        #(20_000);
+        #(200_000);
         $display("\n--- Second Measurement ---");
         measure_frequency(10_000.0);
 
