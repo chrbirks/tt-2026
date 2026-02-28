@@ -1,5 +1,8 @@
 # ADPLL Makefile — iverilog simulation + yosys synthesis + GDS flow
 
+# Set GDS_EXTRA_ARGS=--no-docker to run without Docker (requires local OpenROAD/KLayout install)
+GDS_EXTRA_ARGS    ?=
+
 TOP         = tt_um_chrbirks_top
 SRC_DIR     = src
 TEST_DIR    = test
@@ -18,26 +21,34 @@ VERILOG_LIB?= $(PDK_ROOT)/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog/sg13g2_stdc
 TT_TOOLS          = tt
 TT_TOOLS_REPO     = https://github.com/TinyTapeout/tt-support-tools
 TT_TOOLS_REF      = main
-LIBRELANE_VERSION = 3.0.0.dev44
+PDK_REPO          = https://github.com/IHP-GmbH/IHP-Open-PDK.git
+PDK_REPO_REF      = dev
 PDK_ROOT_LOCAL    ?= $(CURDIR)/IHP-Open-PDK
 VENV              = .venv
-# Set GDS_EXTRA_ARGS=--no-docker to run without Docker (requires local OpenROAD/KLayout install)
-GDS_EXTRA_ARGS    ?=
 
-.PHONY: sim view synth gds-setup gds gl-test clean help
+.PHONY: precheck synth gds-setup patch-pyosys gds gl-test clean help
 
 help:
 	@echo "Targets:"
-	@echo "  sim        — Compile and run behavioral simulation (iverilog + vvp)"
-	@echo "  view       — Open waveform in GTKWave"
 	@echo "  synth      — Synthesize with Yosys using sg13g2 liberty"
 	@echo "  gds-setup  — One-time setup: clone tt-support-tools and install librelane"
 	@echo "  gds        — Full ASIC flow: synthesis → P&R → DRC → timing → GDS"
 	@echo "  gl-test    — Gate-level simulation using netlist from runs/wokwi/final/nl/"
 	@echo "  clean      — Remove build artifacts"
 
+## Check for the env variables set: PDK, PDK_ROOT, VIRTUAL_ENV
+precheck:
+	@test $${PDK? PDK is not set}
+	@test $${PDK_ROOT? PDK_ROOT is not set}
+	@test $${VIRTUAL_ENV? VIRTUAL_ENV is not set}
+	@if [ ! -d "$(PDK_ROOT_LOCAL)" ]; then \
+		git clone --branch $(PDK_REPO_REF) --recurse-submodules $(PDK_REPO); \
+	else \
+		echo "$(PDK_ROOT_LOCAL)/ already exists, skipping clone"; \
+	fi
+
 ## Synthesis with Yosys (gate-level DCO, no behavioral model)
-synth:
+synth: precheck
 	@if [ -z "$(PDK_ROOT)" ]; then \
 		echo "ERROR: PDK_ROOT not set. Point it to your IHP PDK installation."; \
 		exit 1; \
@@ -54,7 +65,7 @@ synth:
 	@echo "Synthesis complete: synth_$(TOP).v"
 
 ## One-time setup: clone tt-support-tools, create venv, and install librelane
-gds-setup:
+gds-setup: precheck
 	@if [ ! -d "$(TT_TOOLS)" ]; then \
 		git clone $(TT_TOOLS_REPO) --branch $(TT_TOOLS_REF) $(TT_TOOLS); \
 	else \
@@ -63,16 +74,21 @@ gds-setup:
 	@if [ ! -d "$(VENV)" ]; then \
 		python -m venv $(VENV); \
 	fi
-	$(VENV)/bin/pip install --upgrade pip librelane==$(LIBRELANE_VERSION)
-	$(VENV)/bin/pip install gitpython chevron configupdater requests gdstk cairosvg matplotlib mistune
+	$(VENV)/bin/pip install --upgrade pip
+	$(VENV)/bin/pip install -r requirements.txt
+
+# ## Patch librelane's ys_common.py for pyosys SWIG API compatibility across Yosys versions
+# patch-pyosys: gds-setup
+# 	@echo "Patching ys_common.py for pyosys API compatibility..."
+# 	$(VENV)/bin/python scripts/patch_pyosys_compat.py
 
 ## Full ASIC flow: synthesis → place-and-route → DRC → timing → GDS
-gds: gds-setup
+gds: precheck
 	PDK_ROOT=$(PDK_ROOT_LOCAL) PATH=$(CURDIR)/$(VENV)/bin:$$PATH $(VENV)/bin/python ./$(TT_TOOLS)/tt_tool.py --create-user-config --ihp
 	PDK_ROOT=$(PDK_ROOT_LOCAL) PATH=$(CURDIR)/$(VENV)/bin:$$PATH $(VENV)/bin/python ./$(TT_TOOLS)/tt_tool.py --harden --ihp $(GDS_EXTRA_ARGS)
 
 ## Gate-level simulation using netlist produced by the GDS flow
-gl-test:
+gl-test: precheck
 	@if [ ! -d "runs/wokwi/final/nl" ]; then \
 		echo "ERROR: runs/wokwi/final/nl/ not found. Run 'make gds' first."; \
 		exit 1; \
@@ -81,5 +97,5 @@ gl-test:
 	cd $(TEST_DIR) && make clean && GATES=yes make
 
 clean:
-	rm -f synth_$(TOP).v
-	rm -rf runs/ $(TT_TOOLS)/ $(VENV)/
+	rm -f ./synth_$(TOP).v ./adpll_tb ./abc.history ./adpll.vcd
+	rm -rf ./runs/

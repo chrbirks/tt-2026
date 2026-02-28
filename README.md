@@ -71,6 +71,7 @@ tt2026/
 ### Simulate
 
 ```sh
+cd test/
 make sim
 ```
 
@@ -79,7 +80,8 @@ Compiles with `-DSIMULATION` to use the behavioral DCO model. Runs a 10 MHz refe
 ### View Waveforms
 
 ```sh
-make view
+cd test/
+make sim-view
 ```
 
 Opens `adpll.vcd` in GTKWave. Key signals to observe:
@@ -91,11 +93,33 @@ Opens `adpll.vcd` in GTKWave. Key signals to observe:
 ### Synthesize
 
 ```sh
-export PDK_ROOT=/path/to/ihp-pdk
+source sourceme.sh
+python -m venv .venv
+source .venv/bin/activate
 make synth
 ```
 
 Runs Yosys with the SG13G2 liberty file. Outputs `synth_tt_um_chrbirks_top.v` and gate count statistics.
+
+### GDS flow
+
+```sh
+source sourceme.sh
+python -m venv .venv
+source .venv/bin/activate
+```
+
+#### With tool support from docker
+
+```sh
+make gds
+```
+
+#### With locally installed tools
+
+```sh
+GDS_EXTRA_ARGS=--no-docker make gds
+```
 
 ### Clean
 

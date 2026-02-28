@@ -4,7 +4,15 @@
 *.vcd
 *.fst
 *.fst.hier
-runs
+
+.venv/
+IHP-Open-PDK/
+tt/
+
+runs/
+synth_tt_um_chrbirks_top.v
+abc.history
+
 transcript
 tt_submission
 src/user_config.json
@@ -14,7 +22,3 @@ test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
 adpll_tb
-synth_tt_um_chrbirks_top.v
-IHP-Open-PDK/
-.venv/
-tt/
