@@ -5,12 +5,6 @@
 module tt_um_chrbirks_top #(
     parameter DIV_RATIO = 8
 ) (
-    // input  wire       clk_ref,
-    // input  wire       rst_n,
-    // input  wire       enable,
-    // output wire       clk_out,
-    // output wire       locked,
-    // output wire [6:0] freq_ctrl
     input  wire [7:0] ui_in,    // Dedicated inputs
     output wire [7:0] uo_out,   // Dedicated outputs
     input  wire [7:0] uio_in,   // IOs: Input path
@@ -36,12 +30,11 @@ module tt_um_chrbirks_top #(
   // Reassign inputs
   assign clk_ref = clk;
   assign enable  = ena;
+
   // ui_in unused in closed-loop mode (TT convention: all inputs declared)
 
   // Reassign outputs
   assign uo_out = {6'b0, locked, clk_out};
-
-  // Monitor loop filter output on bidirectional pins
   assign uio_out = {1'b0, freq_ctrl};
   assign uio_oe  = 8'b0111_1111;        // uio[6:0] as outputs
 

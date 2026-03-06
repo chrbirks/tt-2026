@@ -22,3 +22,6 @@ test/__pycache__/
 test/results.xml
 test/gate_level_netlist.v
 adpll_tb
+test/dco_pex_results.log
+test/tt_um_chrbirks_top_pex.spice
+test/tb_dco_pex.raw

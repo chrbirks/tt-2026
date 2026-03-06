@@ -1,0 +1,136 @@
+* Post-extraction ADPLL simulation — IHP SG13G2 130nm
+* Measures DCO ring oscillator frequency with real parasitic RC
+*
+* Run: ngspice -b tb_dco_pex.spice -o dco_pex_results.log
+*   or: ngspice tb_dco_pex.spice   (interactive, for plotting)
+
+** ===== Transistor models (typical corner: 1.2V, 25C) =====
+.LIB ../IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/models/cornerMOSlv.lib mos_tt
+
+** ===== Port-remapped standard cells + extracted netlist =====
+.include tt_um_chrbirks_top_pex.spice
+
+** ===== Power supply: 1.2V =====
+Vvdd VPWR 0 1.2
+Vvss VGND 0 0
+
+** ===== Instantiate extracted top-level =====
+** Port order from extracted .subckt:
+**   VGND VPWR clk ena rst_n
+**   ui_in[0..7] uio_in[0..7]
+**   uio_oe[0..7] uio_out[0..7] uo_out[0..7]
+Xtop VGND VPWR clk ena rst_n
++ ui_in[0] ui_in[1] ui_in[2] ui_in[3] ui_in[4] ui_in[5] ui_in[6] ui_in[7]
++ uio_in[0] uio_in[1] uio_in[2] uio_in[3] uio_in[4] uio_in[5] uio_in[6] uio_in[7]
++ uio_oe[0] uio_oe[1] uio_oe[2] uio_oe[3] uio_oe[4] uio_oe[5] uio_oe[6] uio_oe[7]
++ uio_out[0] uio_out[1] uio_out[2] uio_out[3] uio_out[4] uio_out[5] uio_out[6] uio_out[7]
++ uo_out[0] uo_out[1] uo_out[2] uo_out[3] uo_out[4] uo_out[5] uo_out[6] uo_out[7]
++ tt_um_chrbirks_top
+
+** ===== Stimulus =====
+** Reference clock: 10 MHz (100ns period)
+Vclk clk 0 PULSE(0 1.2 0 0.1n 0.1n 50n 100n)
+
+** Enable: always on
+Vena ena 0 1.2
+
+** Reset: active-low, release after 50ns (5 ref_clk cycles at 10 MHz).
+** If you change the ref_clk frequency, scale this accordingly:
+**   release_time = N_reset_cycles * ref_clk_period  (e.g., 5 * 100n = 500n)
+Vrst rst_n 0 PWL(0 0 50n 0 50.1n 1.2)
+
+** Unused inputs tied to ground
+Vui0 ui_in[0] 0 0
+Vui1 ui_in[1] 0 0
+Vui2 ui_in[2] 0 0
+Vui3 ui_in[3] 0 0
+Vui4 ui_in[4] 0 0
+Vui5 ui_in[5] 0 0
+Vui6 ui_in[6] 0 0
+Vui7 ui_in[7] 0 0
+Vuio0 uio_in[0] 0 0
+Vuio1 uio_in[1] 0 0
+Vuio2 uio_in[2] 0 0
+Vuio3 uio_in[3] 0 0
+Vuio4 uio_in[4] 0 0
+Vuio5 uio_in[5] 0 0
+Vuio6 uio_in[6] 0 0
+Vuio7 uio_in[7] 0 0
+
+** ===== Analysis =====
+** Syntax: .tran <max_timestep> <stop_time>
+**
+** HOW TO MODIFY SIMULATION PARAMETERS
+** ------------------------------------
+**
+** 1) TIMESTEP (first argument):
+**    This is the MAXIMUM step ngspice is allowed to take. Internally it uses
+**    adaptive stepping (smaller when signals change fast), but never exceeds this.
+**    The DCO ring oscillator runs at ~300-600 MHz (period ~1.6-3.3ns).
+**    Rule of thumb: timestep <= fastest_period / 10.
+**      - 0.1n : Required for this extracted netlist. The parasitic RC network
+**               makes the system stiff (time constants spanning ps to us), and
+**               the SG13G2 inverter edges are ~80-120ps. The simulator must take
+**               steps small enough to track these edges or convergence fails.
+**      - 0.2n+: TOO LARGE — causes convergence failure! The simulator straddles
+**               inverter transitions, can't reconcile the inconsistent state,
+**               shrinks the timestep to ~1e-22 trying to recover, and aborts:
+**               "Timestep too small; trouble with node ..."
+**    Do not increase beyond 0.1n for this post-extraction netlist.
+**
+** 2) STOP TIME (second argument):
+**    Must be long enough for the signals you want to observe.
+**      - 500n  (0.5us): ~5 ref_clk cycles. Enough to see DCO start up and early
+**                        freq_ctrl movement. Lock will NOT be reached.
+**      - 6500n (6.5us): ~65 ref_clk cycles. May see partial convergence.
+**      - 50000n (50us): ~500 ref_clk cycles. Should reach lock (~400 cycles needed).
+**
+** 3) IMPORTANT: When you change stop_time, you MUST also update the MEAS
+**    statements below. The RISE=N parameter counts rising edges from t=0.
+**    If the simulation ends before N edges occur, the measurement fails
+**    silently (returns "not found"), and derived calculations become garbage.
+**    See the MEAS section below for guidance on choosing RISE values.
+**
+** ===== Save only signals needed for analysis (reduces memory ~1000x) =====
+** Without .save, ngspice stores ALL ~5000+ internal PEX nodes at every
+** timepoint. At 0.1n step over 6500n, that's 65k points × 5k nodes × 16B
+** ≈ 5-7 GB of RAM → crash/OOM on longer runs.
+** With .save, only these ~12 signals are kept → ~15 MB even at 50us.
+**
+** To debug internal nodes, temporarily add them here, e.g.:
+**   .save v(uo_out[0]) v(Xtop.ring_node_3) ...
+** Then revert before long runs.
+.save v(uo_out[0]) v(uo_out[1]) v(clk) v(rst_n) v(ena)
++ v(uio_out[0]) v(uio_out[1]) v(uio_out[2]) v(uio_out[3])
++ v(uio_out[4]) v(uio_out[5]) v(uio_out[6])
+
+** Presets (uncomment one — always use 0.1n timestep):
+* .tran 0.1n 500n      $ Short run: DCO startup only (~6 min simulation time)
+* .tran 0.1n 1000n      $ Short run: DCO startup only (~13 min simulation time)
+.tran 0.1n 6500n   $ Medium run: partial convergence (~65 ref_clk cycles) ( ~1h10m simulation time)
+* .tran 0.1n 50000n  $ Long run: full lock acquisition (~500 ref_clk cycles)
+
+** ===== Control block =====
+** This script only runs the simulation and saves raw waveform data.
+** Use tb_dco_pex_analysis.spice (or `make pex-sim-analysis`) to run
+** measurements on the saved data without re-simulating.
+.control
+set num_threads=8
+* set ngbehavior=hsa
+run
+** .save is active above — bare 'write' saves only those listed signals.
+** Using 'write ... all' would override .save and dump every PEX node again.
+write tb_dco_pex.raw
+echo ""
+echo "Simulation complete. Waveform saved to tb_dco_pex.raw"
+echo "Run 'make pex-sim-analysis' to measure frequencies."
+echo ""
+echo "Key signals in raw file:"
+echo "  v(uo_out[0])  = clk_out (divided DCO output)"
+echo "  v(uo_out[1])  = locked indicator"
+echo "  v(clk)        = reference clock (10 MHz)"
+echo "  v(uio_out[6..0]) = freq_ctrl[6:0]"
+quit
+.endc
+
+.end

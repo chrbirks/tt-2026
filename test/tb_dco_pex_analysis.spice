@@ -1,0 +1,81 @@
+* Post-extraction ADPLL analysis — loads saved raw data, no re-simulation
+*
+* Prerequisite: run `make pex-sim` first to generate tb_dco_pex.raw
+*
+* Run: ngspice tb_dco_pex_analysis.spice -o dco_pex_analysis.log
+*   (no -b flag — control-mode `meas` is required for loaded data)
+
+** Dummy circuit to satisfy ngspice parser (no simulation is run)
+V1 1 0 0
+
+.control
+load tb_dco_pex.raw
+setplot tran1
+
+* --- Measure clk_out frequency (uo_out[0] = clk_out, divided DCO) ---
+*
+* HOW MEAS RISE=N WORKS
+* ---------------------
+* "RISE=5" means "the 5th time the signal crosses 0.6V going upward."
+* This counts from t=0 across the entire simulation window.
+*
+* To avoid measuring during the reset transient (first ~50ns), use RISE >= 3.
+* Both RISE values must be reachable within the original .tran stop_time,
+* otherwise the measurement returns "not found" and derived 'let' expressions
+* produce nonsense values (often huge or negative numbers).
+*
+* Quick reference for clk_out (divided DCO, ~55 MHz -> ~18ns period):
+*   500n stop  -> ~27 edges possible   -> safe up to RISE=25 or so
+*   6500n stop -> ~360 edges possible   -> safe up to RISE=350 or so
+*   50us stop  -> ~2700 edges possible  -> safe up to RISE=2500 or so
+*
+* For early (startup) measurement, pick two consecutive low RISE values:
+meas tran trise1 WHEN v(uo_out[0])=0.6 RISE=5
+meas tran trise2 WHEN v(uo_out[0])=0.6 RISE=6
+let clkout_period = trise2 - trise1
+let clkout_freq_mhz = 1e-6 / clkout_period
+
+echo ""
+echo "============================================"
+echo "  Post-Extraction ADPLL Measurement Results"
+echo "============================================"
+echo ""
+echo "clk_out (divided DCO) period:"
+print clkout_period
+echo "clk_out frequency (MHz):"
+print clkout_freq_mhz
+echo ""
+
+* --- Measure later in sim when loop should be locked ---
+*
+* For locked-state measurement, pick RISE values near the END of the sim
+* so the loop has had time to converge. The ADPLL needs ~400 ref_clk cycles
+* (40us at 10 MHz) to lock. That corresponds to ~2200 clk_out edges.
+*
+* Match RISE to your .tran stop_time:
+*   500n stop  -> loop not locked yet, use RISE=15/16 to see early behavior
+*   6500n stop -> partially converged, try RISE=300/301
+*   50us stop  -> locked, use RISE=2000/2001 for steady-state measurement
+*
+* Current values (for 6500n stop — partial convergence):
+meas tran trise3 WHEN v(uo_out[0])=0.6 RISE=15
+meas tran trise4 WHEN v(uo_out[0])=0.6 RISE=16
+* For 6500n stop, uncomment these instead:
+* meas tran trise3 WHEN v(uo_out[0])=0.6 RISE=300
+* meas tran trise4 WHEN v(uo_out[0])=0.6 RISE=301
+* For 50us stop (full lock), uncomment these instead:
+* meas tran trise3 WHEN v(uo_out[0])=0.6 RISE=2000
+* meas tran trise4 WHEN v(uo_out[0])=0.6 RISE=2001
+let locked_period = trise4 - trise3
+let locked_freq_mhz = 1e-6 / locked_period
+echo "clk_out period (after lock):"
+print locked_period
+echo "clk_out frequency after lock (MHz):"
+print locked_freq_mhz
+echo ""
+echo "============================================"
+
+quit
+.endc
+
+.end

@@ -103,6 +103,7 @@ Runs Yosys with the SG13G2 liberty file. Outputs `synth_tt_um_chrbirks_top.v` an
 
 ### GDS flow
 
+Set up environment first:
 ```sh
 source sourceme.sh
 python -m venv .venv
@@ -120,6 +121,57 @@ make gds
 ```sh
 GDS_EXTRA_ARGS=--no-docker make gds
 ```
+
+
+### Post-extraction simulation
+
+NOTE: Only seems to work without errors when using the IIC-OSIC-TOOLS container!
+
+Run manually:
+```sh
+cd test
+ngspice tb_dco_pex.spice
+
+# Clock output vs reference clock
+plot v("uo_out[0]") v(clk)
+# Lock indicator
+plot v("uo_out[1]")
+# freq_ctrl[6:0] - watch it converge from midpoint
+plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]") v("uio_out[2]") v("uio_out[1]") v("uio_out[0]")
+# Zoom into DCO oscillation (internal node, if accessible)
+plot v("uo_out[0]") xlimit 400n 500n
+```
+
+Or run with Make:
+```sh
+make pex-sim
+make pex-sim-analysis
+cd test
+ngspice
+load tb_dco_pex.raw
+
+plot v("uo_out[0]") v(clk)
+plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]")
+
+# With GTKWave (if you prefer)
+# ngspice .raw files aren't directly compatible with GTKWave (which expects VCD). You can convert inside ngspice:
+write tb_dco_pex.vcd v("uo_out[0]") v("uo_out[1]") v(clk)
+```
+
+  Most useful signal combinations
+
+  ┌────────────────────┬───────────────────────────────────────────────┬────────────────────────────────────────────────────────┐
+  │  What to observe   │                   Signals                     │                    What you'll see                     │
+  ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+  │ Lock acquisition   │ v("uo_out[0]") + v(clk)                       │ clk_out aligning with ref_clk edges                    │
+  ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+  │ Loop convergence   │ v("uio_out[6]") through v("uio_out[0]")       │ freq_ctrl bits settling from midpoint (64)             │
+  ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+  │ Lock detection     │ v("uo_out[1])"                                │ Goes high when alternating early/late pattern detected │
+  ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
+  │ Phase relationship │ v("uo_out[0])" + v(clk) with xlimit 400n 500n │ Zoomed-in phase alignment at steady state              │
+  └────────────────────┴───────────────────────────────────────────────┴────────────────────────────────────────────────────────┘
+
 
 ### Clean
 
