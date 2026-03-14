@@ -16,10 +16,10 @@ runs/
 *.raw
 transcript
 adpll_tb
-test/*.log
-test/sim_build
-test/gate_level_netlist.v
-test/tt_um_chrbirks_top_pex.spice
-test/sim-gl
-test/tt_um_chrbirks_top.filtered.sdf
-test/tt_um_chrbirks_top.nl.v
+sim/*.log
+sim/sim_build
+sim/gate_level_netlist.v
+sim/tt_um_chrbirks_top_pex.spice
+sim/sim-gl
+sim/tt_um_chrbirks_top.filtered.sdf
+sim/tt_um_chrbirks_top.nl.v

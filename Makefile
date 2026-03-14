@@ -5,7 +5,7 @@ GDS_EXTRA_ARGS    ?=
 
 TOP         = tt_um_chrbirks_top
 SRC_DIR     = src
-TEST_DIR    = test
+TEST_DIR    = sim
 SRC_FILES   = $(SRC_DIR)/bb_phase_detector.v \
               $(SRC_DIR)/digital_loop_filter.v \
               $(SRC_DIR)/freq_divider.v \
@@ -101,10 +101,10 @@ pex-sim:
 		echo "ERROR: $(EXTRACTED) not found. Run 'make gds' first."; \
 		exit 1; \
 	fi
-	rm -f test/dco_pex_results.log
-	rm -f test/dco_pex_analysis.log
-	rm -f test/tt_um_chrbirks_top_pex.spice
-	rm -f test/tb_dco_pex.raw
+	rm -f sim/dco_pex_results.log
+	rm -f sim/dco_pex_analysis.log
+	rm -f sim/tt_um_chrbirks_top_pex.spice
+	rm -f sim/tb_dco_pex.raw
 	python3 scripts/remap_spice_ports.py $(EXTRACTED) $(STDCELL_SPICE) $(TEST_DIR)/tt_um_chrbirks_top_pex.spice
 	cd $(TEST_DIR) && ngspice -b tb_dco_pex.spice -o dco_pex_results.log
 	@echo "Simulation log in $(TEST_DIR)/dco_pex_results.log"
@@ -116,7 +116,7 @@ pex-sim-analysis:
 		echo "ERROR: $(TEST_DIR)/tb_dco_pex.raw not found. Run 'make pex-sim' first."; \
 		exit 1; \
 	fi
-	rm -f test/dco_pex_analysis.log
+	rm -f sim/dco_pex_analysis.log
 	cd $(TEST_DIR) && ngspice tb_dco_pex_analysis.spice -o dco_pex_analysis.log
 	@echo "Analysis results in $(TEST_DIR)/dco_pex_analysis.log"
 

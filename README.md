@@ -51,7 +51,7 @@ tt2026/
 │   ├── ring_osc_dco.v              Gate-level DCO (sg13g2 cells)
 │   ├── ring_osc_dco_sim_model.v    Behavioral DCO for simulation
 │   └── freq_divider.v              Divide-by-N
-├── test/
+├── sim/
 │   ├── tb_adpll.v                  Testbench with frequency measurement
 │   └── filter_sdf.sh               SDF filter for iverilog compatibility
 ├── Makefile
@@ -70,7 +70,7 @@ tt2026/
 ### RTL simulation
 
 ```sh
-cd test/
+cd sim/
 python -m venv .venv
 source .venv/bin/activate
 make sim
@@ -160,7 +160,7 @@ After running the GDS flow (`make gds`), you can simulate the post-place-and-rou
 source sourceme.sh
 python -m venv .venv
 source .venv/bin/activate
-cd test/
+cd sim/
 make sim-gl                 # typical corner (1.20V, 25C)
 make sim-gl-view            # open waveform
 ```
