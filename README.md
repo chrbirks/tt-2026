@@ -11,9 +11,9 @@ ref_clk ──►[Bang-Bang PD]──► early/late ──►[Loop Filter]──
            [Divider /8] ◄── dco_clk ◄─────────────────────────[Ring Osc DCO] ──► clk_out
 ```
 
-**Operating principle:** The bang-bang phase detector compares the divided DCO output against the reference clock. If the DCO is too fast, the loop filter decrements `freq_ctrl` (adding delay stages, slowing the DCO). If too slow, it increments. At lock, `freq_ctrl` dithers by +/-1 around the target value.
+The bang-bang phase detector compares the divided DCO output against the reference clock. If the DCO is too fast, the loop filter decrements `freq_ctrl` (adding delay stages, slowing the DCO). If too slow, it increments. At lock, `freq_ctrl` dithers by +/-1 around the target value.
 
-**Target specs:**
+### Target specs
 - Reference clock: 5-10 MHz
 - DCO range: ~300-600 MHz (7-stage ring oscillator)
 - Output clock: ~40-75 MHz (with /8 divider)
@@ -32,9 +32,9 @@ ref_clk ──►[Bang-Bang PD]──► early/late ──►[Loop Filter]──
 
 ### DCO Detail
 
-The DCO is the only gate-level module — it directly instantiates SG13G2 standard cells to prevent Yosys from optimizing away the ring oscillator structure. Each of the 7 stages contains:
+The DCO is the only gate-level module -- it directly instantiates SG13G2 standard cells to prevent Yosys from optimizing away the ring oscillator structure. Each of the 7 stages contains:
 
-1. A mandatory inverter (`sg13g2_inv_1`) — always in the signal path
+1. A mandatory inverter (`sg13g2_inv_1`) -- always in the signal path
 2. An optional delay pair (2 extra inverters) selected by a MUX (`sg13g2_mux2_1`)
 3. `freq_ctrl[i]=0` bypasses the delay (fast path), `freq_ctrl[i]=1` routes through the extra inverters (slow path)
 
@@ -85,10 +85,10 @@ make sim-view
 ```
 
 Opens `adpll.vcd` in GTKWave. Key signals to observe:
-- `freq_ctrl` — should converge from 64 to a stable value
-- `clk_out` — divided DCO output
-- `locked` — asserts when alternating early/late pattern detected
-- `early` — phase detector output
+- `freq_ctrl` -- should converge from 64 to a stable value
+- `clk_out` -- divided DCO output
+- `locked` -- asserts when alternating early/late pattern detected
+- `early` -- phase detector output
 
 ### Synthesize
 

@@ -1,11 +1,11 @@
 # Tiny Tapeout project information
 project:
-  title: "Tiny Tapeout 2026" # Project title
+  title: "ADPLL" # Project title
   author: "Christian Birk Sørensen" # Your name
   discord: "" # Your discord username, for communication and automatically assigning you a Tapeout role (optional)
-  description: "Placeholder description" # One line description of what your project does
+  description: "All-Digital PLL" # One line description of what your project does
   language: "Verilog" # other examples include SystemVerilog, Amaranth, VHDL, etc
-  clock_hz: 50 # Clock frequency in Hz (or 0 if not applicable)
+  clock_hz: 0 # Clock frequency in Hz (or 0 if not applicable)
 
   # How many tiles your design occupies? A single tile is about 167x108 uM.
   tiles: "1x1" # Valid values: 1x1, 1x2, 2x2, 3x2, 4x2, 6x2 or 8x2
@@ -47,13 +47,13 @@ pinout:
   uo[7]: ""
 
   # Bidirectional pins (freq_ctrl monitor outputs)
-  uio[0]: "freq_ctrl[0]"
-  uio[1]: "freq_ctrl[1]"
-  uio[2]: "freq_ctrl[2]"
-  uio[3]: "freq_ctrl[3]"
-  uio[4]: "freq_ctrl[4]"
-  uio[5]: "freq_ctrl[5]"
-  uio[6]: "freq_ctrl[6]"
+  uio[0]: "freq_ctrl_o[0]"
+  uio[1]: "freq_ctrl_o[1]"
+  uio[2]: "freq_ctrl_o[2]"
+  uio[3]: "freq_ctrl_o[3]"
+  uio[4]: "freq_ctrl_o[4]"
+  uio[5]: "freq_ctrl_o[5]"
+  uio[6]: "freq_ctrl_o[6]"
   uio[7]: ""
 
 # Do not change!
