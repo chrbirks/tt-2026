@@ -21,14 +21,14 @@ ref_clk ──►[Bang-Bang PD]──► early/late ──►[Loop Filter]──
 
 ## Modules
 
-| Module                | File                            | Description                                                                                                                                               |
-|-----------------------|---------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
-| `bb_phase_detector`   | `src/bb_phase_detector.sv`      | Single D-FF sampling `clk_fb` on `clk_ref` rising edge. Outputs `early` signal.                                                                           |
-| `digital_loop_filter` | `src/digital_loop_filter.sv`    | 7-bit saturating up/down counter. Resets to midpoint (64).                                                                                                |
-| `ring_osc_dco`        | `src/ring_osc_dco.sv`           | Gate-level 7-stage ring oscillator using `sg13g2_inv_1` and `sg13g2_mux2_1` cells directly. Per-stage switchable delay path controlled by `freq_ctrl[i]`. |
-| `ring_osc_dco` (sim)  | `src/ring_osc_dco_sim_model.sv` | Behavioral DCO model for simulation (gate-level has zero delay in Verilog simulators). Maps `freq_ctrl` to a time delay.                                  |
-| `freq_divider`        | `src/freq_divider.sv`           | Parameterized divide-by-N counter with 50% duty cycle output.                                                                                             |
-| `tt_um_chrbirks_top`  | `src/tt_um_chrbirks_top.sv`     | Top-level wiring + lock detector (4-bit shift register checking for alternating early/late pattern).                                                      |
+| Module                | File                           | Description                                                                                                                                               |
+|-----------------------|--------------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------|
+| `bb_phase_detector`   | `src/bb_phase_detector.v`      | Single D-FF sampling `clk_fb` on `clk_ref` rising edge. Outputs `early` signal.                                                                           |
+| `digital_loop_filter` | `src/digital_loop_filter.v`    | 7-bit saturating up/down counter. Resets to midpoint (64).                                                                                                |
+| `ring_osc_dco`        | `src/ring_osc_dco.v`           | Gate-level 7-stage ring oscillator using `sg13g2_inv_1` and `sg13g2_mux2_1` cells directly. Per-stage switchable delay path controlled by `freq_ctrl[i]`. |
+| `ring_osc_dco` (sim)  | `src/ring_osc_dco_sim_model.v` | Behavioral DCO model for simulation (gate-level has zero delay in Verilog simulators). Maps `freq_ctrl` to a time delay.                                  |
+| `freq_divider`        | `src/freq_divider.v`           | Parameterized divide-by-N counter with 50% duty cycle output.                                                                                             |
+| `tt_um_chrbirks_top`  | `src/tt_um_chrbirks_top.v`     | Top-level wiring + lock detector (4-bit shift register checking for alternating early/late pattern).                                                      |
 
 ### DCO Detail
 
@@ -45,14 +45,14 @@ An enable MUX at the feedback point forces a constant input when `enable=0`, bre
 ```
 tt2026/
 ├── src/
-│   ├── tt_um_chrbirks_top.sv                 Top-level + lock detector
-│   ├── bb_phase_detector.sv         Bang-bang phase detector
-│   ├── digital_loop_filter.sv       Saturating up/down counter
-│   ├── ring_osc_dco.sv              Gate-level DCO (sg13g2 cells)
-│   ├── ring_osc_dco_sim_model.sv    Behavioral DCO for simulation
-│   └── freq_divider.sv              Divide-by-N
+│   ├── tt_um_chrbirks_top.v                 Top-level + lock detector
+│   ├── bb_phase_detector.v         Bang-bang phase detector
+│   ├── digital_loop_filter.v       Saturating up/down counter
+│   ├── ring_osc_dco.v              Gate-level DCO (sg13g2 cells)
+│   ├── ring_osc_dco_sim_model.v    Behavioral DCO for simulation
+│   └── freq_divider.v              Divide-by-N
 ├── test/
-│   ├── tb_adpll.sv                  Testbench with frequency measurement
+│   ├── tb_adpll.v                  Testbench with frequency measurement
 │   └── filter_sdf.sh               SDF filter for iverilog compatibility
 ├── Makefile
 ├── CLAUDE.md

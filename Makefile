@@ -6,11 +6,11 @@ GDS_EXTRA_ARGS    ?=
 TOP         = tt_um_chrbirks_top
 SRC_DIR     = src
 TEST_DIR    = test
-SRC_FILES   = $(SRC_DIR)/bb_phase_detector.sv \
-              $(SRC_DIR)/digital_loop_filter.sv \
-              $(SRC_DIR)/freq_divider.sv \
-              $(SRC_DIR)/tt_um_chrbirks_top.sv
-GATE_DCO    = $(SRC_DIR)/ring_osc_dco.sv
+SRC_FILES   = $(SRC_DIR)/bb_phase_detector.v \
+              $(SRC_DIR)/digital_loop_filter.v \
+              $(SRC_DIR)/freq_divider.v \
+              $(SRC_DIR)/tt_um_chrbirks_top.v
+GATE_DCO    = $(SRC_DIR)/ring_osc_dco.v
 
 # Yosys/synthesis settings
 LIBERTY    ?= $(PDK_ROOT)/ihp-sg13g2/libs.ref/sg13g2_stdcell/lib/sg13g2_stdcell_typ_1p20V_25C.lib

@@ -5,12 +5,12 @@ SRC_DIR     = ../src
 TEST_DIR    = .
 VERILOG_LIB ?= ../IHP-Open-PDK/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog/sg13g2_udp.v \
                ../IHP-Open-PDK/ihp-sg13g2/libs.ref/sg13g2_stdcell/verilog/sg13g2_stdcell.v
-SRC_FILES   = $(SRC_DIR)/bb_phase_detector.sv \
-              $(SRC_DIR)/digital_loop_filter.sv \
-              $(SRC_DIR)/freq_divider.sv \
-              $(SRC_DIR)/tt_um_chrbirks_top.sv
-SIM_DCO     = $(SRC_DIR)/ring_osc_dco_sim_model.sv
-TB          = $(TEST_DIR)/tb_adpll.sv
+SRC_FILES   = $(SRC_DIR)/bb_phase_detector.v \
+              $(SRC_DIR)/digital_loop_filter.v \
+              $(SRC_DIR)/freq_divider.v \
+              $(SRC_DIR)/tt_um_chrbirks_top.v
+SIM_DCO     = $(SRC_DIR)/ring_osc_dco_sim_model.v
+TB          = $(TEST_DIR)/tb_adpll.v
 SDF_DIR     = ../runs/wokwi/final/sdf
 SDF_CORNER  ?= nom_typ_1p20V_25C
 SDF_FILE    = $(SDF_DIR)/$(SDF_CORNER)/$(TOP)__$(SDF_CORNER).sdf

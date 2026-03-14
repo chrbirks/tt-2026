@@ -17,11 +17,11 @@ project:
   # Source files must be in ./src and you must list each source file separately, one per line.
   # Don't forget to also update `PROJECT_SOURCES` in test/Makefile.
   source_files:
-    - "tt_um_chrbirks_top.sv"
-    - "bb_phase_detector.sv"
-    - "digital_loop_filter.sv"
-    - "ring_osc_dco.sv"
-    - "freq_divider.sv"
+    - "tt_um_chrbirks_top.v"
+    - "bb_phase_detector.v"
+    - "digital_loop_filter.v"
+    - "ring_osc_dco.v"
+    - "freq_divider.v"
 
 # The pinout of your project. Leave unused pins blank. DO NOT delete or add any pins.
 # This section is for the datasheet/website. Use descriptive names (e.g., RX, TX, MOSI, SCL, SEG_A, etc.).
@@ -37,8 +37,8 @@ pinout:
   ui[7]: ""
 
   # Outputs
-  uo[0]: "clk_out"
-  uo[1]: "locked"
+  uo[0]: "clk_o"
+  uo[1]: "locked_o"
   uo[2]: ""
   uo[3]: ""
   uo[4]: ""
