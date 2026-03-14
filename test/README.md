@@ -1,3 +1,5 @@
+NOTE: Use /sim instead of this test folder. This test structure is only to keep the Github test action happy
+
 # Sample testbench for a Tiny Tapeout project
 
 This is a sample testbench for a Tiny Tapeout project. It uses [cocotb](https://docs.cocotb.org/en/stable/) to drive the DUT and check the outputs.

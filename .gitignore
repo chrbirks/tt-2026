@@ -23,3 +23,6 @@ sim/tt_um_chrbirks_top_pex.spice
 sim/sim-gl
 sim/tt_um_chrbirks_top.filtered.sdf
 sim/tt_um_chrbirks_top.nl.v
+
+test/results.xml
+test/sim_build/
