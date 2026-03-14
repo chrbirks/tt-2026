@@ -43,7 +43,7 @@ An enable MUX at the feedback point forces a constant input when `enable=0`, bre
 ## File Structure
 
 ```
-tt2026/
+root/
 ├── src/
 │   ├── tt_um_chrbirks_top.v                 Top-level + lock detector
 │   ├── bb_phase_detector.v         Bang-bang phase detector
@@ -52,10 +52,10 @@ tt2026/
 │   ├── ring_osc_dco_sim_model.v    Behavioral DCO for simulation
 │   └── freq_divider.v              Divide-by-N
 ├── sim/
+│   ├── Makefile
 │   ├── tb_adpll.v                  Testbench with frequency measurement
 │   └── filter_sdf.sh               SDF filter for iverilog compatibility
 ├── Makefile
-├── CLAUDE.md
 └── README.md
 ```
 
