@@ -136,21 +136,23 @@ GDS_EXTRA_ARGS=--no-docker make gds-setup gds
 
 To get some more information about the results of the GDS flow, use some of these tools:
 
- ┌────────────┬────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────┐
- │    Tool    │                                        What                                    │                      How                                              │
- ├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
- │ Log files  │ `runs/wokwi/flow.log` (stage summary), `*/yosys-synthesis.log` (Yosys output), │ Read directly                                                         │
- │            │ `*/verilator-lint.log` (lint)                                                  │                                                                       │
- ├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
- │ KLayout    │ GDS layout viewer (post-P&R)                                                   │ `klayout runs/wokwi/final/klayout_gds/tt_um_chrbirks_top.klayout.gds` │
- ├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
- │ Magic      │ DRC, extraction, cross-section view                                            │ magic -T $PDK_ROOT/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc then │
- │            │                                                                                │ File -> Read GDS -> runs/wokwi/final/gds/tt_um_chrbirks_top.gds       │
- ├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
- │ OpenSTA    │ Timing paths, setup/hold analysis on your post-P&R netlist                     │ sta then source the SDC/netlist from runs/wokwi/                      │
- │            │                                                                                │               runs/wokwi/final/nl/tt_um_chrbirks_top.nl.v             │
- │            │                                                                                │               runs/wokwi/final/pnl/tt_um_chrbirks_top.pnl.v           │
- └────────────┴────────────────────────────────────────────────────────────────────────────────┴───────────────────────────────────────────────────────────────────────┘
+```
+┌────────────┬────────────────────────────────────────────────────────────────────────────────┬───────────────────────────────────────────────────────────────────────┐
+│    Tool    │                                        What                                    │                      How                                              │
+├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Log files  │ `runs/wokwi/flow.log` (stage summary), `*/yosys-synthesis.log` (Yosys output), │ Read directly                                                         │
+│            │ `*/verilator-lint.log` (lint)                                                  │                                                                       │
+├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ KLayout    │ GDS layout viewer (post-P&R)                                                   │ `klayout runs/wokwi/final/klayout_gds/tt_um_chrbirks_top.klayout.gds` │
+├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ Magic      │ DRC, extraction, cross-section view                                            │ magic -T $PDK_ROOT/ihp-sg13g2/libs.tech/magic/ihp-sg13g2.magicrc then │
+│            │                                                                                │ File -> Read GDS -> runs/wokwi/final/gds/tt_um_chrbirks_top.gds       │
+├────────────┼────────────────────────────────────────────────────────────────────────────────┼───────────────────────────────────────────────────────────────────────┤
+│ OpenSTA    │ Timing paths, setup/hold analysis on your post-P&R netlist                     │ sta then source the SDC/netlist from runs/wokwi/                      │
+│            │                                                                                │               runs/wokwi/final/nl/tt_um_chrbirks_top.nl.v             │
+│            │                                                                                │               runs/wokwi/final/pnl/tt_um_chrbirks_top.pnl.v           │
+└────────────┴────────────────────────────────────────────────────────────────────────────────┴───────────────────────────────────────────────────────────────────────┘
+```
 
 ### Gate-Level Simulation (with SDF timing)
 
@@ -214,6 +216,7 @@ write tb_dco_pex.vcd v("uo_out[0]") v("uo_out[1]") v(clk)
 
 Some useful signal combinations
 
+```
 ┌────────────────────┬───────────────────────────────────────────────┬────────────────────────────────────────────────────────┐
 │  What to observe   │                   Signals                     │                    What you'll see                     │
 ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
@@ -225,6 +228,7 @@ Some useful signal combinations
 ├────────────────────┼───────────────────────────────────────────────┼────────────────────────────────────────────────────────┤
 │ Phase relationship │ v("uo_out[0])" + v(clk) with xlimit 400n 500n │ Zoomed-in phase alignment at steady state              │
 └────────────────────┴───────────────────────────────────────────────┴────────────────────────────────────────────────────────┘
+```
 
 
 ### Clean
