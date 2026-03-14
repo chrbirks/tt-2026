@@ -31,7 +31,8 @@ module tt_um_chrbirks_top #(
   assign clk_ref = clk;
   assign enable  = ena;
 
-  // ui_in unused in closed-loop mode (TT convention: all inputs declared)
+  // List all unused inputs to prevent warnings
+  wire _unused = &{uio_in, ui_in};
 
   // Reassign outputs
   assign uo_out = {5'b0, clk, locked, clk_out};
