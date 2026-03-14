@@ -41,36 +41,37 @@ module tt_um_chrbirks_top #(
   // TODO: Assign clk to output pin for reference
 
     // Phase Detector: compare ref_clk with feedback clock
-    bb_phase_detector u_pd (
-        .clk_ref (clk_ref),
-        .rst_n   (rst_n),
-        .clk_fb  (clk_fb),
-        .early   (early)
+    bb_phase_detector pd_inst (
+        .clk_ref_i (clk_ref),
+        .rst_n_i   (rst_n),
+        .clk_fb_i  (clk_fb),
+        .early_o   (early)
     );
 
     // Loop Filter: adjust frequency control word
-    digital_loop_filter u_lf (
-        .clk_ref   (clk_ref),
-        .rst_n     (rst_n),
-        .early     (early),
-        .freq_ctrl (freq_ctrl)
+    digital_loop_filter filter_inst (
+        .clk_ref_i   (clk_ref),
+        .rst_n_i     (rst_n),
+        .early_i     (early),
+        .freq_ctrl_o (freq_ctrl)
     );
 
     // DCO: generate high-frequency clock
     // In simulation, the behavioral model replaces the gate-level version
-    ring_osc_dco u_dco (
-        .enable   (enable),
-        .freq_ctrl(freq_ctrl),
-        .dco_clk  (dco_clk)
+    ring_osc_dco dco_inst (
+        .enable_i    (enable),
+        .freq_ctrl_i (freq_ctrl),
+        .dco_clk_o   (dco_clk)
     );
 
     // Frequency Divider: divide DCO clock down to ref_clk range
+    // TODO: Handle different clock domains
     freq_divider #(
         .DIV_RATIO(DIV_RATIO)
-    ) u_div (
-        .clk_in  (dco_clk),
-        .rst_n   (rst_n),
-        .clk_out (clk_fb)
+    ) freq_div_inst (
+        .clk_i   (dco_clk),
+        .rst_n_i (rst_n),
+        .clk_o   (clk_fb)
     );
 
     assign clk_out = clk_fb;

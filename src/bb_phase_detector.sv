@@ -1,19 +1,21 @@
 // Bang-Bang Phase Detector
-// Samples clk_fb on rising edge of clk_ref.
-// early=1 means DCO is too fast (fb leads ref), early=0 means too slow.
+// Samples clk_fb_i on rising edge of clk_ref_i.
+//
+// early_o = 1: DCO clock is too fast compared to ref clock
+// early_o = 0: DCO clock is too slow compared to ref clock
 
 module bb_phase_detector (
-    input  wire clk_ref,
-    input  wire rst_n,
-    input  wire clk_fb,
-    output reg  early
+    input  wire clk_ref_i,
+    input  wire rst_n_i,
+    input  wire clk_fb_i,
+    output reg  early_o
 );
 
-    always @(posedge clk_ref or negedge rst_n) begin
-        if (!rst_n)
-            early <= 1'b0;
+    always @(posedge clk_ref_i or negedge rst_n_i) begin
+        if (!rst_n_i)
+            early_o <= 1'b0;
         else
-            early <= clk_fb;
+            early_o <= clk_fb_i;
     end
 
 endmodule
