@@ -38,7 +38,6 @@ module tt_um_chrbirks_top #(
   assign uio_out = {1'b0, freq_ctrl};
   assign uio_oe  = 8'b0111_1111;        // uio[6:0] as outputs
 
-  // TODO: Make sure rst_n is used asynchronously
   // TODO: Assign clk to output pin for reference
 
     // Phase Detector: compare ref_clk with feedback clock

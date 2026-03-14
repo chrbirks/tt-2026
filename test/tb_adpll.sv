@@ -8,7 +8,7 @@
 module tb_adpll;
 
     // Parameters
-    // TODO: params not used
+    // TODO: remove params not used
     localparam REF_PERIOD = 100.0;  // 10 MHz reference clock (100 ns period)
     localparam DIV_RATIO  = 8;
     localparam SIM_TIME   = 2_000_000; // 200 us simulation
@@ -28,9 +28,9 @@ module tb_adpll;
     assign freq_ctrl = uio_out[6:0];
 
     // DUT
-    tt_um_chrbirks_top #(
-        .DIV_RATIO(DIV_RATIO)
-    ) dut (
+    tt_um_chrbirks_top
+        // #(.DIV_RATIO(DIV_RATIO))
+    dut (
         .ui_in   (8'b0),
         .uo_out  (uo_out),
         .uio_in  (8'b0),
@@ -45,9 +45,20 @@ module tb_adpll;
     initial clk_ref = 1'b0;
     always #(REF_PERIOD / 2) clk_ref = ~clk_ref;
 
+    // SDF back-annotation for gate-level simulation
+`ifdef GL_SIMULATION
+    initial begin
+        $sdf_annotate(`SDF_FILE, dut);
+    end
+`endif
+
     // VCD dump
     initial begin
-        $dumpfile("adpll.vcd");
+        `ifdef GL_SIMULATION
+            $dumpfile("adpll_gl.vcd");
+        `else
+            $dumpfile("adpll.vcd");
+        `endif
         $dumpvars(0, tb_adpll);
     end
 
