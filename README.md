@@ -185,7 +185,7 @@ NOTE: Only seems to work without errors when using the IIC-OSIC-TOOLS container!
 
 Run manually:
 ```sh
-cd test
+cd sim
 ngspice tb_dco_pex.spice
 
 # Clock output vs reference clock
@@ -202,16 +202,12 @@ Or run with Make:
 ```sh
 make pex-sim
 make pex-sim-analysis
-cd test
+cd sim
 ngspice
 load tb_dco_pex.raw
 
 plot v("uo_out[0]") v(clk)
 plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]")
-
-# With GTKWave (if you prefer)
-# ngspice .raw files aren't directly compatible with GTKWave (which expects VCD). You can convert inside ngspice:
-write tb_dco_pex.vcd v("uo_out[0]") v("uo_out[1]") v(clk)
 ```
 
 Some useful signal combinations
