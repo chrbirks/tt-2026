@@ -14,6 +14,22 @@
 Vvdd VPWR 0 1.2
 Vvss VGND 0 0
 
+** ===== Convergence aids for ring oscillator =====
+.option method=gear
+.option itl4=200
+
+** ===== Initial conditions for ring oscillator =====
+** The 7-stage ring has no DC operating point (odd inversions around loop).
+** Alternating voltages break symmetry for the transient solver.
+** Stage outputs are routed to uio_out[0..6] (top-level ports).
+.ic v(uio_out[0])=0
+.ic v(uio_out[1])=1.2
+.ic v(uio_out[2])=0
+.ic v(uio_out[3])=1.2
+.ic v(uio_out[4])=0
+.ic v(uio_out[5])=1.2
+.ic v(uio_out[6])=0
+
 ** ===== Instantiate extracted top-level =====
 ** Port order from extracted .subckt:
 **   VGND VPWR clk ena rst_n
@@ -105,10 +121,10 @@ Vuio7 uio_in[7] 0 0
 + v(uio_out[4]) v(uio_out[5]) v(uio_out[6])
 
 ** Presets (uncomment one — always use 0.1n timestep):
-* .tran 0.1n 500n      $ Short run: DCO startup only (~6 min simulation time)
-* .tran 0.1n 1000n      $ Short run: DCO startup only (~13 min simulation time)
-.tran 0.1n 6500n   $ Medium run: partial convergence (~65 ref_clk cycles) ( ~1h10m simulation time)
-* .tran 0.1n 50000n  $ Long run: full lock acquisition (~500 ref_clk cycles)
+.tran 0.1n 500n uic      $ Short run: DCO startup only (~6 min simulation time)
+* .tran 0.1n 1000n uic   $ Short run: DCO startup only (~13 min simulation time)
+* .tran 0.1n 6500n uic   $ Medium run: partial convergence (~1h10m simulation time)
+* .tran 0.1n 450000n uic $ Long run: full lock acquisition (~500 ref_clk cycles)
 
 ** ===== Control block =====
 ** This script only runs the simulation and saves raw waveform data.

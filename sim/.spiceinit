@@ -1,0 +1,8 @@
+* ngspice init file for PEX simulation
+* Load OSDI plugins for PSP/r3_cmc/mosvar compact models
+* Paths are relative to sim/ (ngspice CWD for make pex-sim)
+
+osdi '../IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/osdi/psp103.osdi'
+osdi '../IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/osdi/psp103_nqs.osdi'
+osdi '../IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/osdi/r3_cmc.osdi'
+osdi '../IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/osdi/mosvar.osdi'

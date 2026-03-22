@@ -179,35 +179,52 @@ make sim-gl SDF_CORNER=nom_slow_1p08V_125C   # slow
 
 The Makefile runs `filter_sdf.sh` to patch the OpenSTA-generated SDF for iverilog compatibility (strips INTERCONNECT/COND entries, fixes escaped hierarchy names in the flattened netlist). The filtered SDF is passed to `$sdf_annotate` in the testbench via the `GL_SIMULATION` define.
 
-### Post-extraction simulation
+### Post-extraction simulation (PEX)
 
-NOTE: Only seems to work without errors when using the IIC-OSIC-TOOLS container!
+Runs the full ADPLL at transistor level with parasitic RC extracted from the GDS layout.
+Requires `ngspice` (with OSDI support) and a completed GDS flow (`make gds`).
 
-Run manually:
+#### One-time setup: compile OSDI models
+
+The IHP SG13G2 PDK uses PSP compact models written in Verilog-A. These must be compiled
+to `.osdi` shared libraries before ngspice can simulate any transistor-level netlist.
+
 ```sh
-cd sim
-ngspice tb_dco_pex.spice
+# Install the Verilog-A compiler (Arch/EndeavourOS)
+paru -S openvaf-reloaded
 
-# Clock output vs reference clock
-plot v("uo_out[0]") v(clk)
-# Lock indicator
-plot v("uo_out[1]")
-# freq_ctrl[6:0] - watch it converge from midpoint
-plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]") v("uio_out[2]") v("uio_out[1]") v("uio_out[0]")
-# Zoom into DCO oscillation (internal node, if accessible)
-plot v("uo_out[0]") xlimit 400n 500n
+# Compile PSP, r3_cmc, and mosvar models (~10 seconds)
+cd IHP-Open-PDK/ihp-sg13g2/libs.tech/verilog-a
+./openvaf-compile-va.sh
 ```
 
-Or run with Make:
+This creates `psp103.osdi`, `psp103_nqs.osdi`, `r3_cmc.osdi`, and `mosvar.osdi` in
+`IHP-Open-PDK/ihp-sg13g2/libs.tech/ngspice/osdi/`. The `sim/.spiceinit` file loads
+them automatically when ngspice starts from the `sim/` directory.
+
+#### Run PEX simulation
+
 ```sh
-make pex-sim
-make pex-sim-analysis
+source sourceme.sh
+make pex-sim              # extract + simulate (~6 min for 500ns run)
+make pex-sim-analysis     # measure frequencies from saved waveform
+```
+
+#### View waveforms interactively
+
+```sh
 cd sim
 ngspice
 load tb_dco_pex.raw
 
-plot v("uo_out[0]") v(clk)
-plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]")
+# Clock output vs reference clock
+plot v(clk)+1.5 v("uo_out[0]") v("uo_out[1]")+3.0
+# Lock indicator
+plot v("uo_out[1]")
+# freq_ctrl[6:0] - watch it converge from midpoint
+plot v("uio_out[6]") v("uio_out[5]") v("uio_out[4]") v("uio_out[3]") v("uio_out[2]") v("uio_out[1]") v("uio_out[0]")
+# Zoom into DCO oscillation
+plot v("uo_out[0]") xlimit 400n 500n
 ```
 
 Some useful signal combinations
